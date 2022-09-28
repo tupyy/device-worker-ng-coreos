@@ -1,0 +1,97 @@
+variant: fcos
+version: 1.3.0
+passwd:
+  users:
+    - name: core
+      uid: 1000
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICsx5m3Pu9nxayhj6FIdNfzE2ppSlKqbJ9OJgG74jV9Q cosmin@fedora
+
+systemd:
+  units:
+    # Enable auto-login for 'core' user.
+    - name: serial-getty@ttyS0.service
+      dropins:
+      - name: autologin-core.conf
+        contents: |
+          [Service]
+          ExecStart=
+          ExecStart=-/usr/sbin/agetty --autologin core --noclear %I $TERM
+          TTYVTDisallocate=no
+    # Don't auto-update our CoreOS configuration.
+    - name: zincati.service
+      mask: true
+    - name: podman.service
+      enabled: true
+    - name: podman.socket
+      enabled: true
+    - name: nftables.service
+      enabled: true
+    - name: flotta-setup.service
+      enabled: true
+    - name: flotta-start.service
+      enabled: true
+
+storage:
+  trees:
+    - path: /etc/systemd/system
+      local: systemd/
+  directories:
+    - path: /etc/device-worker-ng/certificates
+      mode: 0700
+  files:
+    # Hostname for virtual host.
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: edgedevice
+    # Certificates
+    - path: /etc/device-worker-ng/certificates/key.pem
+      mode: 0666
+      contents:
+        local: files/key.pem
+      user:
+        id: 1000
+    - path: /etc/device-worker-ng/certificates/cert.pem
+      mode: 0666
+      contents:
+        local: files/cert.pem
+      user:
+        id: 1000
+    - path: /etc/device-worker-ng/certificates/ca.pem
+      mode: 0666
+      contents:
+        local: files/ca.pem
+      user:
+        id: 1000
+    - path: /etc/device-worker-ng/config.yaml
+      mode: 0666
+      contents:
+        local: files/config.yaml
+    # Dont log audit messages
+    - path: /etc/sysctl.d/20-silence-audit.conf
+      mode: 0644
+      contents:
+        inline: |
+          # Raise console message logging level from DEBUG (7) to WARNING (4)
+          # to hide audit messages from the interactive console.
+          kernel.printk=4
+    # Set operator hostname
+    - path: /etc/hosts
+      overwrite: true
+      contents:
+        inline: |
+          IPADDRESS DOMAIN
+    # linger root
+    - path: /etc/systemd/logind.conf
+      overwrite: true
+      contents:
+        inline: |
+          KillExcludeUsers=root
+    # disable selinux
+    - path: /etc/selinux/config
+      overwrite: true
+      contents:
+        inline: |
+          SELINUX=disabled
+          SELINUXTYPE=targeted

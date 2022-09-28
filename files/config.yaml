@@ -1,0 +1,6 @@
+LOG_LEVEL: debug
+CA_ROOT: /etc/device-worker-ng/certificates/ca.pem
+CERT: /etc/device-worker-ng/certificates/cert.pem
+KEY: /etc/device-worker-ng/certificates/key.pem
+SERVER: https://project-flotta.io:8043
+XDG_RUNTIME_DIR: /run/user/1000

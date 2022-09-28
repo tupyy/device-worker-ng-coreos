@@ -1,0 +1,16 @@
+[Unit]
+Description=Device-worker-ng setup service
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=!/usr/lib/systemd/system/device-worker-ng.service
+
+[Service]
+Type=oneshot
+ExecStartPre=curl https://copr.fedorainfracloud.org/coprs/tupanu/device-worker-ng/repo/fedora-36/device-worker-ng-fedora-36.repo -o /etc/yum.repos.d/device-worker-ng.repo
+ExecStart=rpm-ostree install device-worker-ng
+ExecStart=/bin/bash -c "echo \"DEVICE_ID: ##`cat /etc/machine-id`##\" >> /etc/device-worker-ng/config.yaml"
+ExecStart=sed -i -s "s/##/\"/g" /etc/device-worker-ng/config.yaml
+ExecStopPost=systemctl reboot
+
+[Install]
+WantedBy=multi-user.target
