@@ -27,7 +27,7 @@ NC          ?= $(call find-cmd,nc) -vv -r -l
 deploy: $(TMPDIR)images/fedora-coreos-$(VERSION)-qemu.$(ARCH).qcow2.xz $(TMPDIR)deploy/spec.ign $(TMPDIR)deploy/
 	@printf "Preparing virtual environment...\n"
 	$Q $(VIRTINSTALL) --import --name="$(VM_NAME)" --os-variant=fedora36 \
-	                  --graphics=none --vcpus=2 --memory=2048 \
+	                  --graphics=none --vcpus=2 --memory=4096 \
 	                  --disk="size=10,backing_store=$(TMPDIR)images/fedora-coreos-$(VERSION)-qemu.$(ARCH).qcow2" \
 	                  --qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=$(TMPDIR)deploy/spec.ign"
 

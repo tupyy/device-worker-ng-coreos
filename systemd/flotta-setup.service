@@ -2,14 +2,16 @@
 Description=Device-worker-ng setup service
 Wants=network-online.target
 After=network-online.target
-ConditionPathExists=!/usr/lib/systemd/system/device-worker-ng.service
+ConditionPathExists=!/usr/bin/device-worker-ng
 
 [Service]
 Type=oneshot
+ExecStartPre=sudo rm /etc/yum.repos.d/fedora-cisco-openh264.repo
 ExecStartPre=curl https://copr.fedorainfracloud.org/coprs/tupanu/device-worker-ng/repo/fedora-36/device-worker-ng-fedora-36.repo -o /etc/yum.repos.d/device-worker-ng.repo
-ExecStart=rpm-ostree install device-worker-ng
-ExecStart=/bin/bash -c "echo \"DEVICE_ID: ##`cat /etc/machine-id`##\" >> /etc/device-worker-ng/config.yaml"
-ExecStart=sed -i -s "s/##/\"/g" /etc/device-worker-ng/config.yaml
+ExecStart=sudo rpm-ostree install device-worker-ng
+ExecStart=sudo --user=#1000 systemctl --user enable --now podman.socket
+ExecStart=/bin/bash -c "echo \"client-id = ##`cat /etc/machine-id`##\" >> /etc/yggdrasil/config.toml"
+ExecStart=sed -i -s "s/##/\"/g" /etc/yggdrasil/config.toml
 ExecStopPost=systemctl reboot
 
 [Install]

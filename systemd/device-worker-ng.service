@@ -1,0 +1,15 @@
+[Unit]
+Description=device-worker-ng
+Requires=podman.socket
+After=podman.socket
+StartLimitIntervalSec=0
+ConditionPathExists=/usr/bin/device-worker-ng
+
+[Service]
+Type=exec
+KillMode=process
+ExecStart=/usr/bin/device-worker-ng --config /etc/device-worker-ng/config.yaml
+
+[Install]
+WantedBy=multi-user.target
+

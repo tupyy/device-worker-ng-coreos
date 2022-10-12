@@ -29,7 +29,7 @@ systemd:
       enabled: true
     - name: flotta-setup.service
       enabled: true
-    - name: flotta-start.service
+    - name: device-worker-ng.service
       enabled: true
 
 storage:
